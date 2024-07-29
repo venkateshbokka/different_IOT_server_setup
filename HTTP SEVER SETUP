@@ -1,1 +1,108 @@
+To set up an HTTP server on an EC2 instance running Ubuntu, follow these steps:
 
+### Step 1: Launch an EC2 Instance
+
+1. **Log in to AWS Management Console**.
+2. **Navigate to EC2 Dashboard**.
+3. **Click "Launch Instance"**.
+4. **Choose an Amazon Machine Image (AMI)**. Select an Ubuntu Server AMI (e.g., Ubuntu Server 20.04 LTS).
+5. **Select an Instance Type**. `t2.micro` is a good option for a free tier.
+6. **Configure Instance Details**. Accept the default settings.
+7. **Add Storage**. The default 8 GB is usually sufficient.
+8. **Add Tags** (optional).
+9. **Configure Security Group**. Add a rule to allow HTTP traffic:
+   - Type: HTTP
+   - Protocol: TCP
+   - Port Range: 80
+   - Source: Anywhere (0.0.0.0/0)
+
+10. **Review and Launch** the instance.
+11. **Create or Select a Key Pair** for SSH access, then launch the instance.
+
+### Step 2: Connect to Your EC2 Instance
+
+1. **Select the instance** from the EC2 dashboard.
+2. **Click "Connect"**.
+3. Follow the SSH command provided to connect to your instance. It will look something like this:
+   ```bash
+   ssh -i "your-key-pair.pem" ubuntu@your-instance-public-dns
+   ```
+
+### Step 3: Install Apache HTTP Server
+
+1. **Update the package manager**:
+   ```bash
+   sudo apt update
+   ```
+
+2. **Install Apache**:
+   ```bash
+   sudo apt install apache2 -y
+   ```
+
+3. **Start the Apache server**:
+   ```bash
+   sudo systemctl start apache2
+   ```
+
+4. **Enable Apache to start on boot**:
+   ```bash
+   sudo systemctl enable apache2
+   ```
+
+### Step 4: Configure Security Group to Allow HTTP Traffic
+
+Ensure that the security group associated with your instance allows HTTP traffic (port 80). This was set up during the instance creation process, but you can verify and adjust it if needed:
+
+1. **Go to the EC2 Dashboard**.
+2. **Select Security Groups**.
+3. **Find your instance's security group** and ensure it has an inbound rule that allows HTTP traffic.
+
+### Step 5: Verify the HTTP Server is Running
+
+1. Open a web browser.
+2. Enter your instance’s public DNS or public IP address:
+   ```plaintext
+   http://your-instance-public-dns
+   ```
+
+You should see the Apache HTTP server default welcome page, confirming that your server is running.
+
+### Step 6: Deploy Your Website
+
+1. **Upload your website files** to the Apache default root directory:
+   ```bash
+   sudo cp /path/to/your/website/* /var/www/html/
+   ```
+
+2. **Restart the Apache server** to apply changes:
+   ```bash
+   sudo systemctl restart apache2
+   ```
+
+### Example Commands
+
+Here's a quick recap of the key commands:
+
+```bash
+ssh -i "your-key-pair.pem" ubuntu@your-instance-public-dns
+
+sudo apt update
+sudo apt install apache2 -y
+sudo systemctl start apache2
+sudo systemctl enable apache2
+
+sudo cp /path/to/your/website/* /var/www/html/
+sudo systemctl restart apache2
+```
+
+### Additional Resources
+
+- [AWS EC2 Documentation](https://docs.aws.amazon.com/ec2/index.html)
+- [Apache HTTP Server Documentation](https://httpd.apache.org/docs/)
+
+By following these steps, you should have a functional HTTP server running on your EC2 instance with Ubuntu, ready to serve your website. If you encounter any issues, ensure your security groups are correctly configured and check the Apache error logs for more details:
+
+```bash
+sudo tail -f /var/log/apache2/error.log
+```

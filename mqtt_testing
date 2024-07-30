@@ -1,0 +1,20 @@
+Quality of Service (QoS):
+
+-q 0 (default): At most once
+-q 1: At least once
+-q 2: Exactly once
+
+from the terminal we can publish and subscribe the data  but we need to install mosquitto-clinet shoud be installed in system 
+  if you are using ubuntu :
+  sudo apt install mosquitto mosquitto-clients -y
+
+Example:
+
+mosquitto_pub -h localhost -t test/topic -m "Hello, MQTT" -q 1 -u user1 -P password123
+
+mosquitto_sub -h localhost -t test/topic -m "Hello, MQTT" -q 1 -u user1 -P password123
+
+some many mqtt clinet tools are avalable 
+mqttbox,postman
+mqttbox:https://mqttbox.en.softonic.com/
+postman:https://www.postman.com/

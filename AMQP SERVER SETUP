@@ -1,1 +1,37 @@
+Prerequisites
+An AWS account with necessary permissions
+Basic understanding of Linux command line
+A preferred operating system (Ubuntu, CentOS, etc.)
+Steps
+1. Launch an EC2 Instance
+Log in to your AWS Management Console.  
+Navigate to the EC2 service.
+Launch a new instance with the desired operating system, instance type, and security group configuration.
+Open the necessary ports in your security group (e.g.,ssh for remote access, port 5672 for AMQP, 15672 for management UI).  
+Connect the ec2 machine with ssh terminal or putty after that do he following steps 
 
+
+
+    1  sudo apt-get update
+    2  sudo apt-get upgrade -y
+    3  sudo apt install erlang -y
+    4  sudo apt install rabbitmq-server
+    5  sudo systemctl start rabbitmq-server
+    6  sudo systemctl status rabbitmq-server
+    7  clear
+    8  reboot
+    9  sudo reboot
+   10  sudo systemctl status rabbitmq-server
+   11  clear
+   12  sudo systemctl restart rabbitmq-server
+   13  sudo systemctl status rabbitmq-server
+   14  clear
+   15  sudo rabbitmq-plugins enable rabbitmq_management
+   16  sudo rabbitmqctl add_user venkat venkat
+   17  sudo rabbitmqctl set_user_tags venkat administrator
+   18  sudo rabbitmqctl set_permissions -p / venkat ".*" ".*" ".*"
+   19  sudo systemctl restart rabbitmq-server
+   20  sudo systemctl status rabbitmq-server
+
+   After successfully executing the all the commands  we need to access the ui with 
+   http://your_ec2_public_ip:15672 through your browser

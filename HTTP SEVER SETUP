@@ -24,29 +24,29 @@ To set up an HTTP server on an EC2 instance running Ubuntu, follow these steps:
 1. **Select the instance** from the EC2 dashboard.
 2. **Click "Connect"**.
 3. Follow the SSH command provided to connect to your instance. It will look something like this:
-   ```bash
+   command:
    ssh -i "your-key-pair.pem" ubuntu@your-instance-public-dns
    ```
 
 ### Step 3: Install Apache HTTP Server
 
 1. **Update the package manager**:
-   ```bash
+   command:
    sudo apt update
    ```
 
 2. **Install Apache**:
-   ```bash
+   command:
    sudo apt install apache2 -y
    ```
 
 3. **Start the Apache server**:
-   ```bash
+   command:
    sudo systemctl start apache2
    ```
 
 4. **Enable Apache to start on boot**:
-   ```bash
+   command:
    sudo systemctl enable apache2
    ```
 
@@ -71,12 +71,12 @@ You should see the Apache HTTP server default welcome page, confirming that your
 ### Step 6: Deploy Your Website
 
 1. **Upload your website files** to the Apache default root directory:
-   ```bash
+   command:
    sudo cp /path/to/your/website/* /var/www/html/
    ```
 
 2. **Restart the Apache server** to apply changes:
-   ```bash
+   command:
    sudo systemctl restart apache2
    ```
 
@@ -84,7 +84,7 @@ You should see the Apache HTTP server default welcome page, confirming that your
 
 Here's a quick recap of the key commands:
 
-```bash
+command:
 ssh -i "your-key-pair.pem" ubuntu@your-instance-public-dns
 
 sudo apt update
@@ -103,6 +103,6 @@ sudo systemctl restart apache2
 
 By following these steps, you should have a functional HTTP server running on your EC2 instance with Ubuntu, ready to serve your website. If you encounter any issues, ensure your security groups are correctly configured and check the Apache error logs for more details:
 
-```bash
+command:
 sudo tail -f /var/log/apache2/error.log
 ```

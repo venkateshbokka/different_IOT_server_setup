@@ -196,7 +196,7 @@ First, ensure you have `rabbitmqadmin` installed and configured as described in 
 1. **Send a Message to a Queue**:
     You can use the `publish` command of `rabbitmqadmin` to send a message to a specific queue.
 
-    ```bash
+    command:
     rabbitmqadmin publish exchange=amq.default routing_key=sensor_data_queue payload='{"temperature": 22.5, "humidity": 60}'
     ```
 
@@ -209,14 +209,14 @@ First, ensure you have `rabbitmqadmin` installed and configured as described in 
 1. **Install `curl`**:
     Ensure `curl` is installed on your system. If not, you can install it using:
 
-    ```bash
+    command:
     sudo apt-get install curl
     ```
 
 2. **Send a Message to a Queue**:
     You can use `curl` to send a message to the RabbitMQ HTTP API.
 
-    ```bash
+    command:
     curl -u iot_user:iot_password -H "content-type:application/json" -X POST \
         -d '{"properties":{},"routing_key":"sensor_data_queue","payload":"{\"temperature\":22.5,\"humidity\":60}","payload_encoding":"string"}' \
         http://your-instance-public-dns:15672/api/exchanges/%2f/amq.default/publish
@@ -236,7 +236,7 @@ First, ensure you have `rabbitmqadmin` installed and configured as described in 
 
 2. **Send a message**:
 
-    ```bash
+    command:
     rabbitmqadmin publish exchange=amq.default routing_key=sensor_data_queue payload='{"temperature": 22.5, "humidity": 60}'
     ```
 
@@ -244,13 +244,13 @@ First, ensure you have `rabbitmqadmin` installed and configured as described in 
 
 1. **Ensure `curl` is installed**:
 
-    ```bash
+    command:
     sudo apt-get install curl
     ```
 
 2. **Send a message**:
 
-    ```bash
+    command:
     curl -u iot_user:iot_password -H "content-type:application/json" -X POST \
         -d '{"properties":{},"routing_key":"sensor_data_queue","payload":"{\"temperature\":22.5,\"humidity\":60}","payload_encoding":"string"}' \
         http://your-instance-public-dns:15672/api/exchanges/%2f/amq.default/publish

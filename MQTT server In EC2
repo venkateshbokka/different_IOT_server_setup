@@ -15,41 +15,41 @@ Setting up an MQTT server on an AWS EC2 instance involves launching an instance,
 ### Step 2: Connect to Your EC2 Instance
 
 1. **Connect to your instance** via SSH:
-   ```bash
+   command:
    ssh -i your-key.pem ubuntu@your-ec2-public-dns
    ```
 
 ### Step 3: Install Mosquitto MQTT Broker
 
 1. **Update the package list**:
-   ```bash
+   command:
    sudo apt-get update
    ```
 
 2. **Install Mosquitto and Mosquitto clients**:
-   ```bash
+   command:
    sudo apt-get install -y mosquitto mosquitto-clients
    ```
 
 3. **Enable Mosquitto to start on boot**:
-   ```bash
+   command:
    sudo systemctl enable mosquitto
    ```
 
 4. **Start the Mosquitto service**:
-   ```bash
+   command:
    sudo systemctl start mosquitto
    ```
 
 ### Step 4: Configure Mosquitto
 
 1. **Create a password file**:
-   ```bash
+   command:
    sudo mosquitto_passwd -c /etc/mosquitto/passwd your_username
    ```
 
 2. **Edit the Mosquitto configuration file**:
-   ```bash
+   command:
    sudo nano /etc/mosquitto/mosquitto.conf
    ```
 
@@ -62,7 +62,7 @@ Setting up an MQTT server on an AWS EC2 instance involves launching an instance,
    ```
 
 4. **Restart Mosquitto to apply the changes**:
-   ```bash
+   command:
    sudo systemctl restart mosquitto
    ```
 
@@ -74,17 +74,17 @@ Setting up an MQTT server on an AWS EC2 instance involves launching an instance,
 
 1. **Install Mosquitto clients on your local machine** (if not already installed):
    - On Ubuntu:
-     ```bash
+     command:
      sudo apt-get install -y mosquitto-clients
      ```
 
 2. **Publish a test message**:
-   ```bash
+   command:
    mosquitto_pub -h your-ec2-public-dns -u your_username -P your_password -t "test/topic" -m "Hello MQTT"
    ```
 
 3. **Subscribe to the test topic**:
-   ```bash
+   command:
    mosquitto_sub -h your-ec2-public-dns -u your_username -P your_password -t "test/topic"
    ```
 
@@ -95,7 +95,7 @@ You should see the message "Hello MQTT" appear in the subscriber terminal.
 To secure MQTT with SSL, follow these steps:
 
 1. **Generate SSL certificates**:
-   ```bash
+   command:
    sudo openssl req -new -out server.csr -newkey rsa:2048 -nodes -keyout server.key -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=your-ec2-public-dns"
    sudo openssl x509 -req -in server.csr -signkey server.key -out server.crt -days 365
    sudo cp server.crt /etc/mosquitto/certs/
@@ -103,7 +103,7 @@ To secure MQTT with SSL, follow these steps:
    ```
 
 2. **Edit the Mosquitto configuration file** to include SSL settings:
-   ```bash
+   command:
    sudo nano /etc/mosquitto/mosquitto.conf
    ```
 
@@ -116,12 +116,12 @@ To secure MQTT with SSL, follow these steps:
    ```
 
 4. **Restart Mosquitto**:
-   ```bash
+   command:
    sudo systemctl restart mosquitto
    ```
 
 5. **Test MQTT over SSL**:
-   ```bash
+   command:
    mosquitto_pub -h your-ec2-public-dns -p 8883 --cafile /path/to/ca.crt --cert /path/to/client.crt --key /path/to/client.key -u your_username -P your_password -t "test/topic" -m "Hello MQTT over SSL"
    mosquitto_sub -h your-ec2-public-dns -p 8883 --cafile /path/to/ca.crt --cert /path/to/client.crt --key /path/to/client.key -u your_username -P your_password -t "test/topic"
    ```

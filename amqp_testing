@@ -1,0 +1,261 @@
+ Python examples for each type of RabbitMQ exchange using the `pika` library. 
+
+### Setting Up RabbitMQ Connection
+
+First, let's set up a basic connection to RabbitMQ that will be used in all examples:
+
+```python
+import pika
+
+# Connection parameters
+rabbitmq_host = 'your-instance-public-dns'
+rabbitmq_port = 5672
+rabbitmq_username = 'iot_user'
+rabbitmq_password = 'iot_password'
+
+# Create a connection to the RabbitMQ server
+credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
+connection_params = pika.ConnectionParameters(
+    host=rabbitmq_host,
+    port=rabbitmq_port,
+    virtual_host='/',
+    credentials=credentials
+)
+connection = pika.BlockingConnection(connection_params)
+channel = connection.channel()
+```
+
+### 1. Direct Exchange
+
+#### Producer
+
+```python
+# Declare a direct exchange
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+
+# Send a message with a specific routing key
+severity = 'error'
+message = 'This is an error message.'
+
+channel.basic_publish(exchange='direct_logs', routing_key=severity, body=message)
+print(f"Sent '{message}' with routing key '{severity}'")
+```
+
+#### Consumer
+
+```python
+# Declare the exchange
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+
+# Declare a queue and bind it to the exchange with a specific routing key
+queue_name = 'error_logs'
+channel.queue_declare(queue=queue_name, durable=True)
+channel.queue_bind(exchange='direct_logs', queue=queue_name, routing_key='error')
+
+# Define a callback function to process messages
+def callback(ch, method, properties, body):
+    print(f"Received {body}")
+
+# Start consuming messages
+channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+print('Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+```
+
+### 2. Fanout Exchange
+
+#### Producer
+
+```python
+# Declare a fanout exchange
+channel.exchange_declare(exchange='logs', exchange_type='fanout')
+
+# Send a message
+message = 'This is a log message.'
+channel.basic_publish(exchange='logs', routing_key='', body=message)
+print(f"Sent '{message}'")
+```
+
+#### Consumer
+
+```python
+# Declare the exchange
+channel.exchange_declare(exchange='logs', exchange_type='fanout')
+
+# Declare a queue and bind it to the exchange
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+channel.queue_bind(exchange='logs', queue=queue_name)
+
+# Define a callback function to process messages
+def callback(ch, method, properties, body):
+    print(f"Received {body}")
+
+# Start consuming messages
+channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+print('Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+```
+
+### 3. Topic Exchange
+
+#### Producer
+
+```python
+# Declare a topic exchange
+channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
+
+# Send a message with a specific routing key
+routing_key = 'sensor.temperature'
+message = 'Temperature is 22.5°C.'
+
+channel.basic_publish(exchange='topic_logs', routing_key=routing_key, body=message)
+print(f"Sent '{message}' with routing key '{routing_key}'")
+```
+
+#### Consumer
+
+```python
+# Declare the exchange
+channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
+
+# Declare a queue and bind it to the exchange with a routing key pattern
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+channel.queue_bind(exchange='topic_logs', queue=queue_name, routing_key='sensor.*')
+
+# Define a callback function to process messages
+def callback(ch, method, properties, body):
+    print(f"Received {body}")
+
+# Start consuming messages
+channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+print('Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+```
+
+### 4. Headers Exchange
+
+#### Producer
+
+```python
+# Declare a headers exchange
+channel.exchange_declare(exchange='header_logs', exchange_type='headers')
+
+# Send a message with specific headers
+message = 'This is a header log message.'
+headers = {'format': 'json', 'type': 'report'}
+
+channel.basic_publish(
+    exchange='header_logs',
+    routing_key='',
+    body=message,
+    properties=pika.BasicProperties(headers=headers)
+)
+print(f"Sent '{message}' with headers {headers}")
+```
+
+#### Consumer
+
+```python
+# Declare the exchange
+channel.exchange_declare(exchange='header_logs', exchange_type='headers')
+
+# Declare a queue and bind it to the exchange with specific headers
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+binding_arguments = {'format': 'json', 'type': 'report'}
+channel.queue_bind(exchange='header_logs', queue=queue_name, arguments=binding_arguments)
+
+# Define a callback function to process messages
+def callback(ch, method, properties, body):
+    print(f"Received {body}")
+
+# Start consuming messages
+channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+print('Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+```
+
+### Explanation
+
+1. **Direct Exchange**: The producer sends messages with a routing key, and the consumer binds a queue to the exchange with the same routing key.
+2. **Fanout Exchange**: The producer sends messages to all queues bound to the exchange without any routing key. Each consumer gets a copy of the message.
+3. **Topic Exchange**: The producer sends messages with a routing key pattern, and the consumer binds a queue with a matching pattern.
+4. **Headers Exchange**: The producer sends messages with specific headers, and the consumer binds a queue to the exchange with matching headers.
+
+Replace `your-instance-public-dns`, `iot_user`, and `iot_password` with your actual RabbitMQ server details. Each consumer script will continuously listen for messages matching its criteria.
+
+ in terminal also use publish and subcribe the data from the server :
+ you can send data to a RabbitMQ server from the terminal using tools like `rabbitmqadmin` or `curl` to interact with RabbitMQ's HTTP API. Below are examples of both methods.
+
+### Using `rabbitmqadmin`
+
+First, ensure you have `rabbitmqadmin` installed and configured as described in the previous messages.
+
+1. **Send a Message to a Queue**:
+    You can use the `publish` command of `rabbitmqadmin` to send a message to a specific queue.
+
+    ```bash
+    rabbitmqadmin publish exchange=amq.default routing_key=sensor_data_queue payload='{"temperature": 22.5, "humidity": 60}'
+    ```
+
+    - `exchange=amq.default`: Specifies the default exchange.
+    - `routing_key=sensor_data_queue`: Specifies the name of the queue.
+    - `payload='{"temperature": 22.5, "humidity": 60}'`: Specifies the message payload.
+
+### Using `curl` to Interact with RabbitMQ HTTP API
+
+1. **Install `curl`**:
+    Ensure `curl` is installed on your system. If not, you can install it using:
+
+    ```bash
+    sudo apt-get install curl
+    ```
+
+2. **Send a Message to a Queue**:
+    You can use `curl` to send a message to the RabbitMQ HTTP API.
+
+    ```bash
+    curl -u iot_user:iot_password -H "content-type:application/json" -X POST \
+        -d '{"properties":{},"routing_key":"sensor_data_queue","payload":"{\"temperature\":22.5,\"humidity\":60}","payload_encoding":"string"}' \
+        http://your-instance-public-dns:15672/api/exchanges/%2f/amq.default/publish
+    ```
+
+    - `-u iot_user:iot_password`: Authenticates with the RabbitMQ server.
+    - `-H "content-type:application/json"`: Sets the content type to JSON.
+    - `-X POST`: Specifies the HTTP method to use (POST in this case).
+    - `-d '{...}'`: Specifies the data to send. This includes properties, the routing key (queue name), the message payload, and the payload encoding.
+    - `http://your-instance-public-dns:15672/api/exchanges/%2f/amq.default/publish`: Specifies the RabbitMQ HTTP API endpoint for publishing messages.
+
+### Example Workflow
+
+#### Using `rabbitmqadmin`
+
+1. **Ensure `rabbitmqadmin` is configured** as described earlier.
+
+2. **Send a message**:
+
+    ```bash
+    rabbitmqadmin publish exchange=amq.default routing_key=sensor_data_queue payload='{"temperature": 22.5, "humidity": 60}'
+    ```
+
+#### Using `curl`
+
+1. **Ensure `curl` is installed**:
+
+    ```bash
+    sudo apt-get install curl
+    ```
+
+2. **Send a message**:
+
+    ```bash
+    curl -u iot_user:iot_password -H "content-type:application/json" -X POST \
+        -d '{"properties":{},"routing_key":"sensor_data_queue","payload":"{\"temperature\":22.5,\"humidity\":60}","payload_encoding":"string"}' \
+        http://your-instance-public-dns:15672/api/exchanges/%2f/amq.default/publish
+    ```
+
+By using either `rabbitmqadmin` or `curl`, you can send messages to RabbitMQ directly from the terminal. This is useful for testing and simple automation tasks. 
+ 
+
